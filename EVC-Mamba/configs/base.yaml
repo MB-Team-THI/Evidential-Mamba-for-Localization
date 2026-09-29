@@ -1,0 +1,79 @@
+experiment:
+  name: "mamba"
+  seed: 42
+  output_dir: "./outputs/exp1/"
+
+data:
+  input_columns: [ "LatAcc_obd", "brake_pressure_obd", "speedo_obd", "SW_pos_obd","VelFR_obd","VelFL_obd","VelRR_obd","VelRL_obd" ,"Yawrate_obd"]
+  target_columns: ['ins_vel_hor_x','ins_vel_hor_y'] #"acc_hor_x","acc_hor_y", "rate_hor_z"] #rate_hor_z
+  pose_columns: ["ins_pos_rel_x","ins_pos_rel_y",'ins_yaw',"rate_hor_z",'ins_vel_hor_x','ins_vel_hor_y',"acc_hor_x","acc_hor_y","Yawrate_obd","LatAcc_obd", "brake_pressure_obd", "speedo_obd", "SW_pos_obd","VelFR_obd","VelFL_obd","VelRR_obd","VelRL_obd","ins_pitch","ins_roll"]
+  window_size:  250 #3 Secs of history and 2 secs of correction for state estimation in dead reckoning mode
+  history_size: 150
+  split_indices:
+    train: 70
+    val: 10
+    test: 20
+  scale: True
+
+preprocess_dataset:
+  input_dir: "data/Revsted2" 
+  file_pattern: "ReVSTEDv2_{}.csv" 
+  selected_columns:
+    - "INS_time_sec"
+    - "LatAcc_obd"
+    - "brake_pressure_obd"
+    - "speedo_obd"
+    - "SW_pos_obd"
+    - "VelFR_obd"
+    - "VelFL_obd"
+    - "VelRR_obd"
+    - "VelRL_obd"
+    - "Yawrate_obd"
+    - "acc_hor_x"
+    - "acc_hor_y"
+    - "rate_hor_z"
+    - 'ins_vel_hor_x'
+    - 'ins_vel_hor_y'
+    - "side_slip_angle_adma_poi" #Not at COG
+    - "ins_pos_rel_x"
+    - "ins_pos_rel_y"
+    - "ins_yaw"
+    - "ins_roll"
+    - "ins_pitch"
+
+model:
+  name: "kalman_pose_obd"
+  model: "ml_block"
+  enc_in: 9
+  dec_in: 9
+  seq_len: 250
+  seq_len_enc: 150
+  seq_len_dec: 100
+  enc_out: 2 #Measruement #2 for delta_x,delta_y experiment
+  dec_x_in: 6 #Kalman filter state
+  enc_layers: 2
+  dec_layers: 2
+  dropout: 0.1
+  d_model: 128
+  n_head: 8
+  a_max: 10
+  v_max: 30
+  yaw_max: 1.5
+  num_layers: 4
+  activation: 'gelu'
+  evidential: True
+
+
+KalmanFilter:
+  state_dim: 8 
+  obs_dim: 5 
+
+
+
+training:
+  epochs: 50
+  learning_rate: 0.0001
+  optimizer: "adam"
+  scheduler: "step"
+  step_size: 10
+  gamma: 0.1
