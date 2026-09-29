@@ -40,7 +40,7 @@ Evaluated on the [ReV-StED dataset](https://doi.org/10.5281/zenodo.15270060).
 
 EVC-Mamba comes within about 10% of a dedicated external velocity sensor and runs in real time on an NVIDIA Jetson Orin (20–24 ms per inference, 22.8 MFLOPs).
 
-The Code needs to be reorganized a bit for easier implementation and will be done by October 15th. 
+The Code is currently being reorganized for easier implementation and will be completed by Oct 4th. 
 
 ## Citation
 
